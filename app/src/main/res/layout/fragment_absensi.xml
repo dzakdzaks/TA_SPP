@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.AbsensiFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                app:cardBackgroundColor="@color/lightgray"
+                app:cardCornerRadius="6dp">
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/board"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button"
+                        android:clickable="false"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        android:text="Absensi Siswa"
+                        android:textColor="@android:color/white" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/board"
+                        android:layout_centerInParent="true"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:orientation="vertical"
+                        android:padding="6dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/addButton"
+                                android:foreground="?android:attr/selectableItemBackground"
+                                android:layout_margin="6dp"
+                                android:background="@drawable/backtext"
+                                android:layout_width="wrap_content"
+                                android:padding="6dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp">
+                                <ImageView
+                                    android:id="@+id/add"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:layout_centerVertical="true"
+                                    android:foreground="?android:attr/selectableItemBackground"
+                                    android:src="@drawable/ic_add_black_24dp" />
+                                <TextView
+                                    android:layout_marginLeft="6dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:clickable="true"
+                                    android:elevation="4dp"
+                                    android:layout_toRightOf="@+id/add"
+                                    android:layout_centerInParent="true"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:text="Tambah Siswa"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                            </RelativeLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <RelativeLayout
+                                        android:id="@+id/relative7A"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="5dp"
+                                        android:background="@drawable/backtext">
+
+                                        <ImageView
+                                            android:id="@+id/print7A"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginStart="6dp"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/ic_print_black_24dp" />
+
+
+                                        <TextView
+                                            android:id="@+id/tv7AExpand"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_centerInParent="true"
+                                            android:layout_margin="5dp"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:clickable="true"
+                                            android:elevation="4dp"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:padding="10dp"
+                                            android:text="Kelas VII A"
+                                            android:textColor="@android:color/white"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <ImageView
+                                            android:id="@+id/drop7A"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentEnd="true"
+                                            android:layout_centerVertical="true"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/dropdown" />
+
+
+                                    </RelativeLayout>
+
+                                    <com.dzakdzaks.ta_spp.global.EmptyRecyclerView
+                                        android:id="@+id/recycler_view_7A"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:scrollbars="vertical"
+                                        android:visibility="gone" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <RelativeLayout
+                                        android:id="@+id/relative7B"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="5dp"
+                                        android:background="@drawable/backtext">
+
+                                        <ImageView
+                                            android:id="@+id/print7B"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginStart="6dp"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/ic_print_black_24dp" />
+
+
+                                        <TextView
+                                            android:id="@+id/tv7BExpand"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_centerInParent="true"
+                                            android:layout_margin="5dp"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:clickable="true"
+                                            android:elevation="4dp"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:padding="10dp"
+                                            android:text="Kelas VII B"
+                                            android:textColor="@android:color/white"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <ImageView
+                                            android:id="@+id/drop7B"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentEnd="true"
+                                            android:layout_centerVertical="true"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/dropdown" />
+
+
+                                    </RelativeLayout>
+
+                                    <com.dzakdzaks.ta_spp.global.EmptyRecyclerView
+                                        android:id="@+id/recycler_view_7B"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:scrollbars="vertical"
+                                        android:visibility="gone" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <RelativeLayout
+                                        android:id="@+id/relative8A"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="5dp"
+                                        android:background="@drawable/backtext">
+
+                                        <ImageView
+                                            android:id="@+id/print8A"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginStart="6dp"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/ic_print_black_24dp" />
+
+
+                                        <TextView
+                                            android:id="@+id/tv8AExpand"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_centerInParent="true"
+                                            android:layout_margin="5dp"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:clickable="true"
+                                            android:elevation="4dp"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:padding="10dp"
+                                            android:text="Kelas VIII A"
+                                            android:textColor="@android:color/white"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <ImageView
+                                            android:id="@+id/drop8A"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentEnd="true"
+                                            android:layout_centerVertical="true"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/dropdown" />
+
+
+                                    </RelativeLayout>
+
+                                    <com.dzakdzaks.ta_spp.global.EmptyRecyclerView
+                                        android:id="@+id/recycler_view_8A"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:scrollbars="vertical"
+                                        android:visibility="gone" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <RelativeLayout
+                                        android:id="@+id/relative8B"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="5dp"
+                                        android:background="@drawable/backtext">
+
+                                        <ImageView
+                                            android:id="@+id/print8B"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginStart="6dp"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/ic_print_black_24dp" />
+
+
+                                        <TextView
+                                            android:id="@+id/tv8BExpand"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_centerInParent="true"
+                                            android:layout_margin="5dp"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:clickable="true"
+                                            android:elevation="4dp"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:padding="10dp"
+                                            android:text="Kelas VIII B"
+                                            android:textColor="@android:color/white"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <ImageView
+                                            android:id="@+id/drop8B"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentEnd="true"
+                                            android:layout_centerVertical="true"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/dropdown" />
+
+
+                                    </RelativeLayout>
+
+                                    <com.dzakdzaks.ta_spp.global.EmptyRecyclerView
+                                        android:id="@+id/recycler_view_8B"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:scrollbars="vertical"
+                                        android:visibility="gone" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <RelativeLayout
+                                        android:id="@+id/relative9A"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="5dp"
+                                        android:background="@drawable/backtext">
+
+                                        <ImageView
+                                            android:id="@+id/print9A"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginStart="6dp"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/ic_print_black_24dp" />
+
+                                        <TextView
+                                            android:id="@+id/tv9AExpand"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_centerInParent="true"
+                                            android:layout_margin="5dp"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:clickable="true"
+                                            android:elevation="4dp"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:padding="10dp"
+                                            android:text="Kelas IX A"
+                                            android:textColor="@android:color/white"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <ImageView
+                                            android:id="@+id/drop9A"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentEnd="true"
+                                            android:layout_centerVertical="true"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/dropdown" />
+
+
+                                    </RelativeLayout>
+
+                                    <com.dzakdzaks.ta_spp.global.EmptyRecyclerView
+                                        android:id="@+id/recycler_view_9A"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:scrollbars="vertical"
+                                        android:visibility="gone" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <RelativeLayout
+                                        android:id="@+id/relative9B"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_margin="5dp"
+                                        android:background="@drawable/backtext">
+
+                                        <ImageView
+                                            android:id="@+id/print9B"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentStart="true"
+                                            android:layout_centerVertical="true"
+                                            android:layout_marginStart="6dp"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/ic_print_black_24dp" />
+
+
+                                        <TextView
+                                            android:id="@+id/tv9BExpand"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_centerInParent="true"
+                                            android:layout_margin="5dp"
+                                            android:layout_marginTop="3dp"
+                                            android:layout_marginBottom="3dp"
+                                            android:clickable="true"
+                                            android:elevation="4dp"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:padding="10dp"
+                                            android:text="Kelas IX B"
+                                            android:textColor="@android:color/white"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <ImageView
+                                            android:id="@+id/drop9B"
+                                            android:layout_width="30dp"
+                                            android:layout_height="30dp"
+                                            android:layout_alignParentEnd="true"
+                                            android:layout_centerVertical="true"
+                                            android:foreground="?android:attr/selectableItemBackground"
+                                            android:src="@drawable/dropdown" />
+
+
+                                    </RelativeLayout>
+
+                                    <com.dzakdzaks.ta_spp.global.EmptyRecyclerView
+                                        android:id="@+id/recycler_view_9B"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:scrollbars="vertical"
+                                        android:visibility="gone" />
+                                </LinearLayout>
+
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:indeterminateDrawable="@drawable/progress"
+                        android:visibility="gone" />
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+        </RelativeLayout>
+    </ScrollView>
+</FrameLayout>
