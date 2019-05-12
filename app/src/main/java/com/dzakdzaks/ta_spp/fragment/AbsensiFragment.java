@@ -2,6 +2,7 @@ package com.dzakdzaks.ta_spp.fragment;
 
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -35,12 +37,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dzakdzaks.ta_spp.MainActivity;
+import com.dzakdzaks.ta_spp.Permission.PermissionsActivity;
 import com.dzakdzaks.ta_spp.Permission.PermissionsChecker;
 import com.dzakdzaks.ta_spp.R;
 import com.dzakdzaks.ta_spp.adapter.AdapterAbsensi;
 import com.dzakdzaks.ta_spp.api.ApiClient;
 import com.dzakdzaks.ta_spp.api.ApiInterface;
 import com.dzakdzaks.ta_spp.global.EmptyRecyclerView;
+import com.dzakdzaks.ta_spp.global.FileUtils;
 import com.dzakdzaks.ta_spp.global.GlobalVariable;
 import com.dzakdzaks.ta_spp.response.ResponseCRUDSiswa;
 import com.dzakdzaks.ta_spp.response.ResponseUser;
@@ -60,6 +65,13 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -80,6 +92,10 @@ import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.dzakdzaks.ta_spp.Permission.PermissionsActivity.PERMISSION_REQUEST_CODE;
+import static com.dzakdzaks.ta_spp.Permission.PermissionsChecker.REQUIRED_PERMISSION;
+import static com.dzakdzaks.ta_spp.global.LogUtils.LOGE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -199,6 +215,9 @@ public class AbsensiFragment extends Fragment {
     ArrayList<HashMap<String, String>> listKelas9B;
 
 
+
+    View.OnClickListener listener;
+
     public AbsensiFragment() {
         // Required empty public constructor
     }
@@ -314,86 +333,334 @@ public class AbsensiFragment extends Fragment {
             }
         });
 
-
         print7A.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    createPdfWrapper7A();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                }
+                requestStoragePermission7A();
+
             }
         });
 
         print7B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    createPdfWrapper7B();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                }
+                requestStoragePermission7B();
+
             }
         });
 
         print8A.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    createPdfWrapper8A();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                }
+                requestStoragePermission8A();
+
             }
         });
 
         print8B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    createPdfWrapper8B();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                }
+                requestStoragePermission8B();
+
             }
         });
 
         print9A.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    createPdfWrapper9A();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                }
+                requestStoragePermission9A();
+
             }
         });
 
         print9B.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    createPdfWrapper9B();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (DocumentException e) {
-                    e.printStackTrace();
-                }
+                requestStoragePermission9B();
+
             }
         });
 
+
+
     }
+
+    private void requestStoragePermission7A() {
+        Dexter.withActivity(getActivity())
+                .withPermissions(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            try {
+                                createPdf7A();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (DocumentException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getContext(), "Error occurred! ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+    private void requestStoragePermission7B() {
+        Dexter.withActivity(getActivity())
+                .withPermissions(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            try {
+                                createPdf7B();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (DocumentException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getContext(), "Error occurred! ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+    private void requestStoragePermission8A() {
+        Dexter.withActivity(getActivity())
+                .withPermissions(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            try {
+                                createPdf8A();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (DocumentException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getContext(), "Error occurred! ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+    private void requestStoragePermission8B() {
+        Dexter.withActivity(getActivity())
+                .withPermissions(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            try {
+                                createPdf8B();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (DocumentException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getContext(), "Error occurred! ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+    private void requestStoragePermission9A() {
+        Dexter.withActivity(getActivity())
+                .withPermissions(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            try {
+                                createPdf9A();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (DocumentException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getContext(), "Error occurred! ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+    private void requestStoragePermission9B() {
+        Dexter.withActivity(getActivity())
+                .withPermissions(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            try {
+                                createPdf9B();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (DocumentException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getContext(), "Error occurred! ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Need Permissions");
+        builder.setMessage("This app needs permission to use this feature. You can grant them in app settings.");
+        builder.setPositiveButton("GOTO SETTINGS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                openSettings();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+
+    }
+
+    // navigating user to app settings
+    private void openSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+        intent.setData(uri);
+        startActivityForResult(intent, 101);
+    }
+
 
     private void dialogAddSiswa() {
         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
@@ -551,7 +818,6 @@ public class AbsensiFragment extends Fragment {
 //                    } else {
 //                        emptyView.setVisibility(View.GONE);
 //                    }
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -598,7 +864,6 @@ public class AbsensiFragment extends Fragment {
 //                    } else {
 //                        emptyView.setVisibility(View.GONE);
 //                    }
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -645,7 +910,6 @@ public class AbsensiFragment extends Fragment {
 //                    } else {
 //                        emptyView.setVisibility(View.GONE);
 //                    }
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -692,7 +956,6 @@ public class AbsensiFragment extends Fragment {
 //                    } else {
 //                        emptyView.setVisibility(View.GONE);
 //                    }
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -739,7 +1002,6 @@ public class AbsensiFragment extends Fragment {
 //                    } else {
 //                        emptyView.setVisibility(View.GONE);
 //                    }
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -786,7 +1048,6 @@ public class AbsensiFragment extends Fragment {
 //                    } else {
 //                        emptyView.setVisibility(View.GONE);
 //                    }
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -883,272 +1144,25 @@ public class AbsensiFragment extends Fragment {
         }
     }
 
-    private void createPdfWrapper7A() throws FileNotFoundException, DocumentException {
-
-        int hasWriteStoragePermission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_CONTACTS)) {
-                    showMessageOKCancel("You need to allow access to Storage",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                REQUEST_CODE_ASK_PERMISSIONS);
-                                    }
-                                }
-                            });
-                    return;
-                }
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_ASK_PERMISSIONS);
-            }
-            return;
-        } else {
-            createPdf7A();
-        }
-    }
-
-    private void createPdfWrapper7B() throws FileNotFoundException, DocumentException {
-
-        int hasWriteStoragePermission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_CONTACTS)) {
-                    showMessageOKCancel("You need to allow access to Storage",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                REQUEST_CODE_ASK_PERMISSIONS);
-                                    }
-                                }
-                            });
-                    return;
-                }
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_ASK_PERMISSIONS);
-            }
-            return;
-        } else {
-            createPdf7B();
-        }
-    }
-
-
-    private void createPdfWrapper8A() throws FileNotFoundException, DocumentException {
-
-        int hasWriteStoragePermission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_CONTACTS)) {
-                    showMessageOKCancel("You need to allow access to Storage",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                REQUEST_CODE_ASK_PERMISSIONS);
-                                    }
-                                }
-                            });
-                    return;
-                }
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_ASK_PERMISSIONS);
-            }
-            return;
-        } else {
-            createPdf8A();
-        }
-    }
-
-    private void createPdfWrapper8B() throws FileNotFoundException, DocumentException {
-
-        int hasWriteStoragePermission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_CONTACTS)) {
-                    showMessageOKCancel("You need to allow access to Storage",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                REQUEST_CODE_ASK_PERMISSIONS);
-                                    }
-                                }
-                            });
-                    return;
-                }
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_ASK_PERMISSIONS);
-            }
-            return;
-        } else {
-            createPdf8B();
-        }
-    }
-
-    private void createPdfWrapper9A() throws FileNotFoundException, DocumentException {
-
-        int hasWriteStoragePermission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_CONTACTS)) {
-                    showMessageOKCancel("You need to allow access to Storage",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                REQUEST_CODE_ASK_PERMISSIONS);
-                                    }
-                                }
-                            });
-                    return;
-                }
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_ASK_PERMISSIONS);
-            }
-            return;
-        } else {
-            createPdf9A();
-        }
-    }
-
-    private void createPdfWrapper9B() throws FileNotFoundException, DocumentException {
-
-        int hasWriteStoragePermission = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasWriteStoragePermission != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_CONTACTS)) {
-                    showMessageOKCancel("You need to allow access to Storage",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                REQUEST_CODE_ASK_PERMISSIONS);
-                                    }
-                                }
-                            });
-                    return;
-                }
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_ASK_PERMISSIONS);
-            }
-            return;
-        } else {
-            createPdf9B();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_ASK_PERMISSIONS:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission Granted
-                    try {
-                        createPdfWrapper7A();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (DocumentException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        createPdfWrapper7B();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (DocumentException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        createPdfWrapper8A();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (DocumentException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        createPdfWrapper8B();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (DocumentException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        createPdfWrapper9A();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (DocumentException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        createPdfWrapper9B();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (DocumentException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    // Permission Denied
-                    Toast.makeText(getContext(), "WRITE_EXTERNAL Permission Denied", Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(getContext())
-                .setMessage(message)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
-    }
-
 
     private void createPdf7A() throws FileNotFoundException, DocumentException {
 
-        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/SPP/Absensi Siswa");
+        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/TA_SPP/");
         if (!docsFolder.exists()) {
             docsFolder.mkdir();
-            Log.i(TAG, "Created a new directory for PDF");
+            Log.i("Absensi", "Created a new directory for PDF");
         }
-
-        getCurrentTime();
-        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas VII-A " + strDate + ".pdf");
-
+        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas " + kelas7A + ".pdf");
         OutputStream output = new FileOutputStream(pdfFile);
         Document document = new Document(PageSize.A2.rotate());
         document.setMargins(10, 10, 12, 12);
-
+        document.addCreationDate();
+        document.addAuthor("Rahma");
+        document.addCreator("Dzakdzaks");
         PdfWriter.getInstance(document, output);
         document.open();
+
+
         try {
 
             Font mOrderDetailsTitleFont = new Font(mainheadone);
@@ -1396,13 +1410,13 @@ public class AbsensiFragment extends Fragment {
             Paragraph mNamaUmurParagraphsasWw = new Paragraph(mNamaUmurChunksasWw);
             document.add(mNamaUmurParagraphsasWw);
 
-            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                            Bekasi,          2019", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                                              Bekasi,          2019", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsase = new Paragraph(mNamaUmurChunksase);
             mNamaUmurParagraphsase.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsase);
 
             //15tab
-            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                         Wali Kelas", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                                             Wali Kelas", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasa = new Paragraph(mNamaUmurChunksasa);
             mNamaUmurParagraphsasa.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasa);
@@ -1413,13 +1427,13 @@ public class AbsensiFragment extends Fragment {
 
 
             //15tab
-            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         ----------", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         -----------------------", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasaw = new Paragraph(mNamaUmurChunksasaw);
             mNamaUmurParagraphsasaw.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasaw);
 
             //15tab
-                Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                         ", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                                            ", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasawe = new Paragraph(mNamaUmurChunksasawe);
             mNamaUmurParagraphsasawe.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasawe);
@@ -1674,33 +1688,36 @@ public class AbsensiFragment extends Fragment {
 //            }
 //            document.add(contab);
 
-
-        } catch (DocumentException de) {
-            Log.e("PDFCreator", "DocumentException:" + de);
-        } finally {
             document.close();
+
+            Toast.makeText(context, "Absensi Kelas " + kelas7A + " Created... :) \n" +
+                    "Created in /storage/emulate/0/ta_spp/Absensi", Toast.LENGTH_SHORT).show();
+
+        } catch (
+                DocumentException de) {
+            Log.e("PDFCreator", "DocumentException:" + de);
         }
-        previewPdf();
+
     }
 
 
-    private void createPdf7B() throws FileNotFoundException, DocumentException {
+    private void createPdf7B()  throws FileNotFoundException,DocumentException {
 
-        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/SPP/Absensi Siswa");
+        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/TA_SPP/");
         if (!docsFolder.exists()) {
             docsFolder.mkdir();
-            Log.i(TAG, "Created a new directory for PDF");
+            Log.i("Absensi", "Created a new directory for PDF");
         }
-
-        getCurrentTime();
-        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas VII-B " + strDate + ".pdf");
-
+        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas " + kelas7B + ".pdf");
         OutputStream output = new FileOutputStream(pdfFile);
         Document document = new Document(PageSize.A2.rotate());
         document.setMargins(10, 10, 12, 12);
-
+        document.addCreationDate();
+        document.addAuthor("Rahma");
+        document.addCreator("Dzakdzaks");
         PdfWriter.getInstance(document, output);
         document.open();
+
         try {
 
             Font mOrderDetailsTitleFont = new Font(mainheadone);
@@ -1723,6 +1740,7 @@ public class AbsensiFragment extends Fragment {
             document.add(mNamaUmurParagraphsass);
 
             document.add(new Paragraph("\n"));
+
 
             PdfPTable headtab = new PdfPTable(43);
             headtab.setWidthPercentage(100);
@@ -1930,8 +1948,6 @@ public class AbsensiFragment extends Fragment {
                 contab.addCell(concell);
 
             }
-
-
             document.add(contab);
 
             document.add(new Paragraph("\n"));
@@ -1949,13 +1965,13 @@ public class AbsensiFragment extends Fragment {
             Paragraph mNamaUmurParagraphsasWw = new Paragraph(mNamaUmurChunksasWw);
             document.add(mNamaUmurParagraphsasWw);
 
-            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                            Bekasi,          2019", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                                              Bekasi,          2019", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsase = new Paragraph(mNamaUmurChunksase);
             mNamaUmurParagraphsase.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsase);
 
             //15tab
-            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                         Wali Kelas", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                                             Wali Kelas", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasa = new Paragraph(mNamaUmurChunksasa);
             mNamaUmurParagraphsasa.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasa);
@@ -1966,13 +1982,13 @@ public class AbsensiFragment extends Fragment {
 
 
             //15tab
-            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         ----------", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         -----------------------", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasaw = new Paragraph(mNamaUmurChunksasaw);
             mNamaUmurParagraphsasaw.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasaw);
 
             //15tab
-            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                         ", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                                            ", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasawe = new Paragraph(mNamaUmurChunksasawe);
             mNamaUmurParagraphsasawe.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasawe);
@@ -1982,7 +1998,7 @@ public class AbsensiFragment extends Fragment {
 //            headtab.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            PdfPCell headcell;
 //
-//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VII-B", mainheadone));
+//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VII-A", mainheadone));
 //            headcell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            headcell.setBorderWidthLeft(1);
 //            headcell.setBorderWidthRight(1);
@@ -2005,6 +2021,15 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
+//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
+//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
+//            pacell.setBorder(0);
+//            pacell.setPadding(5);
+//            pacell.setColspan(5);
+//            pacell.setBorderWidthLeft(1);
+//            pacell.setBorderWidthBottom(1);
+//            patab.addCell(pacell);
+//
 //            pacell = new PdfPCell(new Paragraph("NIS", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -2014,14 +2039,6 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
-//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
-//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
-//            pacell.setBorder(0);
-//            pacell.setPadding(5);
-//            pacell.setColspan(5);
-//            pacell.setBorderWidthLeft(1);
-//            pacell.setBorderWidthBottom(1);
-//            patab.addCell(pacell);
 //
 //            pacell = new PdfPCell(new Paragraph("JK", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
@@ -2067,7 +2084,7 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthLeft(1);
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
-//
+
 //            pacell = new PdfPCell(new Paragraph("S", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -2097,17 +2114,17 @@ public class AbsensiFragment extends Fragment {
 //            patab.addCell(pacell);
 //
 //            document.add(patab);
-//
+
 //            /*Set the item details*/
 //            PdfPTable contab = new PdfPTable(27);
 //            contab.setWidthPercentage(100);
 //            PdfPCell concell;
 //
-//            for (int i = 0; listKelas7B.size() > i; i++) {
+//            for (int i = 0; listKelas7A.size() > i; i++) {
 //                if (i == 0) {
 //                    total = 0;
 //                }
-//                HashMap map = listKelas7B.get(i);
+//                HashMap map = listKelas7A.get(i);
 //                String no = map.get("no").toString();
 //                String nis = map.get("nis").toString();
 //                String nama = map.get("nama").toString();
@@ -2226,31 +2243,32 @@ public class AbsensiFragment extends Fragment {
 //            }
 //            document.add(contab);
 
-
-        } catch (DocumentException de) {
-            Log.e("PDFCreator", "DocumentException:" + de);
-        } finally {
             document.close();
+
+            Toast.makeText(context, "Absensi Kelas " + kelas7B + " Created... :) \n" +
+                    "Created in /storage/emulate/0/ta_spp/Absensi", Toast.LENGTH_SHORT).show();
+
+        } catch (
+                DocumentException de) {
+            Log.e("PDFCreator", "DocumentException:" + de);
         }
-        previewPdf();
     }
 
 
-    private void createPdf8A() throws FileNotFoundException, DocumentException {
+    private void createPdf8A()throws FileNotFoundException,DocumentException {
 
-        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/SPP/Absensi Siswa");
+        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/TA_SPP/");
         if (!docsFolder.exists()) {
             docsFolder.mkdir();
-            Log.i(TAG, "Created a new directory for PDF");
+            Log.i("Absensi", "Created a new directory for PDF");
         }
-
-        getCurrentTime();
-        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas VIII-A " + strDate + ".pdf");
-
+        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas " + kelas8A + ".pdf");
         OutputStream output = new FileOutputStream(pdfFile);
         Document document = new Document(PageSize.A2.rotate());
         document.setMargins(10, 10, 12, 12);
-
+        document.addCreationDate();
+        document.addAuthor("Rahma");
+        document.addCreator("Dzakdzaks");
         PdfWriter.getInstance(document, output);
         document.open();
         try {
@@ -2483,8 +2501,6 @@ public class AbsensiFragment extends Fragment {
                 contab.addCell(concell);
 
             }
-
-
             document.add(contab);
 
             document.add(new Paragraph("\n"));
@@ -2502,13 +2518,13 @@ public class AbsensiFragment extends Fragment {
             Paragraph mNamaUmurParagraphsasWw = new Paragraph(mNamaUmurChunksasWw);
             document.add(mNamaUmurParagraphsasWw);
 
-            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                            Bekasi,          2019", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                                              Bekasi,          2019", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsase = new Paragraph(mNamaUmurChunksase);
             mNamaUmurParagraphsase.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsase);
 
             //15tab
-            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                         Wali Kelas", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                                             Wali Kelas", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasa = new Paragraph(mNamaUmurChunksasa);
             mNamaUmurParagraphsasa.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasa);
@@ -2519,13 +2535,13 @@ public class AbsensiFragment extends Fragment {
 
 
             //15tab
-            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         ----------", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         -----------------------", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasaw = new Paragraph(mNamaUmurChunksasaw);
             mNamaUmurParagraphsasaw.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasaw);
 
             //15tab
-            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                         ", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                                            ", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasawe = new Paragraph(mNamaUmurChunksasawe);
             mNamaUmurParagraphsasawe.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasawe);
@@ -2535,7 +2551,7 @@ public class AbsensiFragment extends Fragment {
 //            headtab.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            PdfPCell headcell;
 //
-//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VIII-A", mainheadone));
+//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VII-A", mainheadone));
 //            headcell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            headcell.setBorderWidthLeft(1);
 //            headcell.setBorderWidthRight(1);
@@ -2558,6 +2574,15 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
+//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
+//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
+//            pacell.setBorder(0);
+//            pacell.setPadding(5);
+//            pacell.setColspan(5);
+//            pacell.setBorderWidthLeft(1);
+//            pacell.setBorderWidthBottom(1);
+//            patab.addCell(pacell);
+//
 //            pacell = new PdfPCell(new Paragraph("NIS", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -2567,14 +2592,6 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
-//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
-//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
-//            pacell.setBorder(0);
-//            pacell.setPadding(5);
-//            pacell.setColspan(5);
-//            pacell.setBorderWidthLeft(1);
-//            pacell.setBorderWidthBottom(1);
-//            patab.addCell(pacell);
 //
 //            pacell = new PdfPCell(new Paragraph("JK", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
@@ -2620,7 +2637,7 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthLeft(1);
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
-//
+
 //            pacell = new PdfPCell(new Paragraph("S", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -2650,17 +2667,17 @@ public class AbsensiFragment extends Fragment {
 //            patab.addCell(pacell);
 //
 //            document.add(patab);
-//
+
 //            /*Set the item details*/
 //            PdfPTable contab = new PdfPTable(27);
 //            contab.setWidthPercentage(100);
 //            PdfPCell concell;
 //
-//            for (int i = 0; listKelas8A.size() > i; i++) {
+//            for (int i = 0; listKelas7A.size() > i; i++) {
 //                if (i == 0) {
 //                    total = 0;
 //                }
-//                HashMap map = listKelas8A.get(i);
+//                HashMap map = listKelas7A.get(i);
 //                String no = map.get("no").toString();
 //                String nis = map.get("nis").toString();
 //                String nama = map.get("nama").toString();
@@ -2779,30 +2796,31 @@ public class AbsensiFragment extends Fragment {
 //            }
 //            document.add(contab);
 
-
-        } catch (DocumentException de) {
-            Log.e("PDFCreator", "DocumentException:" + de);
-        } finally {
             document.close();
+
+            Toast.makeText(context, "Absensi Kelas " + kelas8A + " Created... :) \n" +
+                    "Created in /storage/emulate/0/ta_spp/Absensi", Toast.LENGTH_SHORT).show();
+
+        } catch (
+                DocumentException de) {
+            Log.e("PDFCreator", "DocumentException:" + de);
         }
-        previewPdf();
     }
 
-    private void createPdf8B() throws FileNotFoundException, DocumentException {
+    private void createPdf8B() throws FileNotFoundException,DocumentException {
 
-        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/SPP/Absensi Siswa");
+        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/TA_SPP/");
         if (!docsFolder.exists()) {
             docsFolder.mkdir();
-            Log.i(TAG, "Created a new directory for PDF");
+            Log.i("Absensi", "Created a new directory for PDF");
         }
-
-        getCurrentTime();
-        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas VIII-B " + strDate + ".pdf");
-
+        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas " + kelas8B + ".pdf");
         OutputStream output = new FileOutputStream(pdfFile);
         Document document = new Document(PageSize.A2.rotate());
         document.setMargins(10, 10, 12, 12);
-
+        document.addCreationDate();
+        document.addAuthor("Rahma");
+        document.addCreator("Dzakdzaks");
         PdfWriter.getInstance(document, output);
         document.open();
         try {
@@ -2827,6 +2845,7 @@ public class AbsensiFragment extends Fragment {
             document.add(mNamaUmurParagraphsass);
 
             document.add(new Paragraph("\n"));
+
 
             PdfPTable headtab = new PdfPTable(43);
             headtab.setWidthPercentage(100);
@@ -3034,8 +3053,6 @@ public class AbsensiFragment extends Fragment {
                 contab.addCell(concell);
 
             }
-
-
             document.add(contab);
 
             document.add(new Paragraph("\n"));
@@ -3053,13 +3070,13 @@ public class AbsensiFragment extends Fragment {
             Paragraph mNamaUmurParagraphsasWw = new Paragraph(mNamaUmurChunksasWw);
             document.add(mNamaUmurParagraphsasWw);
 
-            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                            Bekasi,          2019", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                                              Bekasi,          2019", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsase = new Paragraph(mNamaUmurChunksase);
             mNamaUmurParagraphsase.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsase);
 
             //15tab
-            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                         Wali Kelas", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                                             Wali Kelas", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasa = new Paragraph(mNamaUmurChunksasa);
             mNamaUmurParagraphsasa.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasa);
@@ -3070,24 +3087,23 @@ public class AbsensiFragment extends Fragment {
 
 
             //15tab
-            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         ----------", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         -----------------------", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasaw = new Paragraph(mNamaUmurChunksasaw);
             mNamaUmurParagraphsasaw.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasaw);
 
             //15tab
-            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                         ", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                                            ", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasawe = new Paragraph(mNamaUmurChunksasawe);
             mNamaUmurParagraphsasawe.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasawe);
-
 
 //            PdfPTable headtab = new PdfPTable(1);
 //            headtab.setWidthPercentage(100);
 //            headtab.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            PdfPCell headcell;
 //
-//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VIII-B", mainheadone));
+//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VII-A", mainheadone));
 //            headcell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            headcell.setBorderWidthLeft(1);
 //            headcell.setBorderWidthRight(1);
@@ -3110,6 +3126,15 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
+//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
+//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
+//            pacell.setBorder(0);
+//            pacell.setPadding(5);
+//            pacell.setColspan(5);
+//            pacell.setBorderWidthLeft(1);
+//            pacell.setBorderWidthBottom(1);
+//            patab.addCell(pacell);
+//
 //            pacell = new PdfPCell(new Paragraph("NIS", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -3119,14 +3144,6 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
-//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
-//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
-//            pacell.setBorder(0);
-//            pacell.setPadding(5);
-//            pacell.setColspan(5);
-//            pacell.setBorderWidthLeft(1);
-//            pacell.setBorderWidthBottom(1);
-//            patab.addCell(pacell);
 //
 //            pacell = new PdfPCell(new Paragraph("JK", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
@@ -3172,7 +3189,7 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthLeft(1);
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
-//
+
 //            pacell = new PdfPCell(new Paragraph("S", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -3202,17 +3219,17 @@ public class AbsensiFragment extends Fragment {
 //            patab.addCell(pacell);
 //
 //            document.add(patab);
-//
+
 //            /*Set the item details*/
 //            PdfPTable contab = new PdfPTable(27);
 //            contab.setWidthPercentage(100);
 //            PdfPCell concell;
 //
-//            for (int i = 0; listKelas8B.size() > i; i++) {
+//            for (int i = 0; listKelas7A.size() > i; i++) {
 //                if (i == 0) {
 //                    total = 0;
 //                }
-//                HashMap map = listKelas8B.get(i);
+//                HashMap map = listKelas7A.get(i);
 //                String no = map.get("no").toString();
 //                String nis = map.get("nis").toString();
 //                String nama = map.get("nama").toString();
@@ -3331,31 +3348,32 @@ public class AbsensiFragment extends Fragment {
 //            }
 //            document.add(contab);
 
-
-        } catch (DocumentException de) {
-            Log.e("PDFCreator", "DocumentException:" + de);
-        } finally {
             document.close();
+
+            Toast.makeText(context, "Absensi Kelas " + kelas8B + " Created... :) \n" +
+                    "Created in /storage/emulate/0/ta_spp/Absensi", Toast.LENGTH_SHORT).show();
+
+        } catch (
+                DocumentException de) {
+            Log.e("PDFCreator", "DocumentException:" + de);
         }
-        previewPdf();
     }
 
 
-    private void createPdf9A() throws FileNotFoundException, DocumentException {
+    private void createPdf9A() throws FileNotFoundException,DocumentException {
 
-        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/SPP/Absensi Siswa");
+        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/TA_SPP/");
         if (!docsFolder.exists()) {
             docsFolder.mkdir();
-            Log.i(TAG, "Created a new directory for PDF");
+            Log.i("Absensi", "Created a new directory for PDF");
         }
-
-        getCurrentTime();
-        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas IX-A " + strDate + ".pdf");
-
+        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas " + kelas9A + ".pdf");
         OutputStream output = new FileOutputStream(pdfFile);
         Document document = new Document(PageSize.A2.rotate());
         document.setMargins(10, 10, 12, 12);
-
+        document.addCreationDate();
+        document.addAuthor("Rahma");
+        document.addCreator("Dzakdzaks");
         PdfWriter.getInstance(document, output);
         document.open();
         try {
@@ -3380,6 +3398,7 @@ public class AbsensiFragment extends Fragment {
             document.add(mNamaUmurParagraphsass);
 
             document.add(new Paragraph("\n"));
+
 
             PdfPTable headtab = new PdfPTable(43);
             headtab.setWidthPercentage(100);
@@ -3587,8 +3606,6 @@ public class AbsensiFragment extends Fragment {
                 contab.addCell(concell);
 
             }
-
-
             document.add(contab);
 
             document.add(new Paragraph("\n"));
@@ -3606,13 +3623,13 @@ public class AbsensiFragment extends Fragment {
             Paragraph mNamaUmurParagraphsasWw = new Paragraph(mNamaUmurChunksasWw);
             document.add(mNamaUmurParagraphsasWw);
 
-            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                            Bekasi,          2019", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                                              Bekasi,          2019", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsase = new Paragraph(mNamaUmurChunksase);
             mNamaUmurParagraphsase.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsase);
 
             //15tab
-            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                         Wali Kelas", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                                             Wali Kelas", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasa = new Paragraph(mNamaUmurChunksasa);
             mNamaUmurParagraphsasa.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasa);
@@ -3623,24 +3640,23 @@ public class AbsensiFragment extends Fragment {
 
 
             //15tab
-            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         ----------", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         -----------------------", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasaw = new Paragraph(mNamaUmurChunksasaw);
             mNamaUmurParagraphsasaw.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasaw);
 
             //15tab
-            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                         ", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                                            ", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasawe = new Paragraph(mNamaUmurChunksasawe);
             mNamaUmurParagraphsasawe.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasawe);
-
 
 //            PdfPTable headtab = new PdfPTable(1);
 //            headtab.setWidthPercentage(100);
 //            headtab.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            PdfPCell headcell;
 //
-//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS IX-A", mainheadone));
+//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VII-A", mainheadone));
 //            headcell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            headcell.setBorderWidthLeft(1);
 //            headcell.setBorderWidthRight(1);
@@ -3663,6 +3679,15 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
+//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
+//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
+//            pacell.setBorder(0);
+//            pacell.setPadding(5);
+//            pacell.setColspan(5);
+//            pacell.setBorderWidthLeft(1);
+//            pacell.setBorderWidthBottom(1);
+//            patab.addCell(pacell);
+//
 //            pacell = new PdfPCell(new Paragraph("NIS", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -3672,14 +3697,6 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
-//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
-//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
-//            pacell.setBorder(0);
-//            pacell.setPadding(5);
-//            pacell.setColspan(5);
-//            pacell.setBorderWidthLeft(1);
-//            pacell.setBorderWidthBottom(1);
-//            patab.addCell(pacell);
 //
 //            pacell = new PdfPCell(new Paragraph("JK", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
@@ -3725,7 +3742,7 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthLeft(1);
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
-//
+
 //            pacell = new PdfPCell(new Paragraph("S", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -3755,17 +3772,17 @@ public class AbsensiFragment extends Fragment {
 //            patab.addCell(pacell);
 //
 //            document.add(patab);
-//
+
 //            /*Set the item details*/
 //            PdfPTable contab = new PdfPTable(27);
 //            contab.setWidthPercentage(100);
 //            PdfPCell concell;
 //
-//            for (int i = 0; listKelas9A.size() > i; i++) {
+//            for (int i = 0; listKelas7A.size() > i; i++) {
 //                if (i == 0) {
 //                    total = 0;
 //                }
-//                HashMap map = listKelas9A.get(i);
+//                HashMap map = listKelas7A.get(i);
 //                String no = map.get("no").toString();
 //                String nis = map.get("nis").toString();
 //                String nama = map.get("nama").toString();
@@ -3884,31 +3901,32 @@ public class AbsensiFragment extends Fragment {
 //            }
 //            document.add(contab);
 
-
-        } catch (DocumentException de) {
-            Log.e("PDFCreator", "DocumentException:" + de);
-        } finally {
             document.close();
+
+            Toast.makeText(context, "Absensi Kelas " + kelas9A + " Created... :) \n" +
+                    "Created in /storage/emulate/0/ta_spp/Absensi", Toast.LENGTH_SHORT).show();
+
+        } catch (
+                DocumentException de) {
+            Log.e("PDFCreator", "DocumentException:" + de);
         }
-        previewPdf();
     }
 
 
-    private void createPdf9B() throws FileNotFoundException, DocumentException {
+    private void createPdf9B() throws FileNotFoundException,DocumentException {
 
-        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/SPP/Absensi Siswa");
+        File docsFolder = new File(Environment.getExternalStorageDirectory() + "/TA_SPP/");
         if (!docsFolder.exists()) {
             docsFolder.mkdir();
-            Log.i(TAG, "Created a new directory for PDF");
+            Log.i("Absensi", "Created a new directory for PDF");
         }
-
-        getCurrentTime();
-        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas IX-B " + strDate + ".pdf");
-
+        pdfFile = new File(docsFolder.getAbsolutePath(), "Kelas " + kelas9B + ".pdf");
         OutputStream output = new FileOutputStream(pdfFile);
         Document document = new Document(PageSize.A2.rotate());
         document.setMargins(10, 10, 12, 12);
-
+        document.addCreationDate();
+        document.addAuthor("Rahma");
+        document.addCreator("Dzakdzaks");
         PdfWriter.getInstance(document, output);
         document.open();
         try {
@@ -3933,6 +3951,7 @@ public class AbsensiFragment extends Fragment {
             document.add(mNamaUmurParagraphsass);
 
             document.add(new Paragraph("\n"));
+
 
             PdfPTable headtab = new PdfPTable(43);
             headtab.setWidthPercentage(100);
@@ -4140,8 +4159,6 @@ public class AbsensiFragment extends Fragment {
                 contab.addCell(concell);
 
             }
-
-
             document.add(contab);
 
             document.add(new Paragraph("\n"));
@@ -4159,13 +4176,13 @@ public class AbsensiFragment extends Fragment {
             Paragraph mNamaUmurParagraphsasWw = new Paragraph(mNamaUmurChunksasWw);
             document.add(mNamaUmurParagraphsasWw);
 
-            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                            Bekasi,          2019", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksase = new Chunk("Mengetahui                                                                              Bekasi,          2019", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsase = new Paragraph(mNamaUmurChunksase);
             mNamaUmurParagraphsase.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsase);
 
             //15tab
-            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                         Wali Kelas", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasa = new Chunk("Kepala SMP HUTAMA                                                                             Wali Kelas", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasa = new Paragraph(mNamaUmurChunksasa);
             mNamaUmurParagraphsasa.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasa);
@@ -4176,24 +4193,23 @@ public class AbsensiFragment extends Fragment {
 
 
             //15tab
-            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         ----------", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasaw = new Chunk("MARDIN KARO KARO S PD                                                         -----------------------", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasaw = new Paragraph(mNamaUmurChunksasaw);
             mNamaUmurParagraphsasaw.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasaw);
 
             //15tab
-            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                         ", mNamaUmurFontsasW);
+            Chunk mNamaUmurChunksasawe = new Chunk("NIP. 19610806 198503 1 013                                                                                            ", mNamaUmurFontsasW);
             Paragraph mNamaUmurParagraphsasawe = new Paragraph(mNamaUmurChunksasawe);
             mNamaUmurParagraphsasawe.setAlignment(Element.ALIGN_RIGHT);
             document.add(mNamaUmurParagraphsasawe);
-
 
 //            PdfPTable headtab = new PdfPTable(1);
 //            headtab.setWidthPercentage(100);
 //            headtab.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            PdfPCell headcell;
 //
-//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS IX-B", mainheadone));
+//            headcell = new PdfPCell(new Paragraph("ABSENSI KELAS VII-A", mainheadone));
 //            headcell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            headcell.setBorderWidthLeft(1);
 //            headcell.setBorderWidthRight(1);
@@ -4216,6 +4232,15 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
+//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
+//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
+//            pacell.setBorder(0);
+//            pacell.setPadding(5);
+//            pacell.setColspan(5);
+//            pacell.setBorderWidthLeft(1);
+//            pacell.setBorderWidthBottom(1);
+//            patab.addCell(pacell);
+//
 //            pacell = new PdfPCell(new Paragraph("NIS", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -4225,14 +4250,6 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
 //
-//            pacell = new PdfPCell(new Paragraph("NAMA SISWA", mainhead));
-//            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
-//            pacell.setBorder(0);
-//            pacell.setPadding(5);
-//            pacell.setColspan(5);
-//            pacell.setBorderWidthLeft(1);
-//            pacell.setBorderWidthBottom(1);
-//            patab.addCell(pacell);
 //
 //            pacell = new PdfPCell(new Paragraph("JK", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
@@ -4278,7 +4295,7 @@ public class AbsensiFragment extends Fragment {
 //            pacell.setBorderWidthLeft(1);
 //            pacell.setBorderWidthBottom(1);
 //            patab.addCell(pacell);
-//
+
 //            pacell = new PdfPCell(new Paragraph("S", mainhead));
 //            pacell.setHorizontalAlignment(Paragraph.ALIGN_CENTER);
 //            pacell.setBorder(0);
@@ -4308,17 +4325,17 @@ public class AbsensiFragment extends Fragment {
 //            patab.addCell(pacell);
 //
 //            document.add(patab);
-//
+
 //            /*Set the item details*/
 //            PdfPTable contab = new PdfPTable(27);
 //            contab.setWidthPercentage(100);
 //            PdfPCell concell;
 //
-//            for (int i = 0; listKelas9B.size() > i; i++) {
+//            for (int i = 0; listKelas7A.size() > i; i++) {
 //                if (i == 0) {
 //                    total = 0;
 //                }
-//                HashMap map = listKelas9B.get(i);
+//                HashMap map = listKelas7A.get(i);
 //                String no = map.get("no").toString();
 //                String nis = map.get("nis").toString();
 //                String nama = map.get("nama").toString();
@@ -4437,13 +4454,16 @@ public class AbsensiFragment extends Fragment {
 //            }
 //            document.add(contab);
 
-
-        } catch (DocumentException de) {
-            Log.e("PDFCreator", "DocumentException:" + de);
-        } finally {
             document.close();
+
+            Toast.makeText(context, "Absensi Kelas " + kelas9B + " Created... :) \n" +
+                    "Created in /storage/emulate/0/ta_spp/Absensi", Toast.LENGTH_SHORT).show();
+
+
+        } catch (
+                DocumentException de) {
+            Log.e("PDFCreator", "DocumentException:" + de);
         }
-        previewPdf();
     }
 
     private void previewPdf() {
@@ -4490,9 +4510,8 @@ public class AbsensiFragment extends Fragment {
 
     public void getCurrentTime() {
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat mdformat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+        SimpleDateFormat mdformat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         strDate = mdformat.format(calendar.getTime());
     }
-
 
 }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,8 +135,8 @@ public class DetailSiswaActivity extends AppCompatActivity {
         tvNisUser.setText(nis);
         tvNameUser.setText(nama);
         tvNoUrut.setText(noUrut);
-        tvTtl.setText(ttl);
         tvKelas.setText(kelas);
+        tvTtl.setText(ttl);
         tvJk.setText(jk);
         tvAgama.setText(agama);
         tvAlamat.setText(alamat);
@@ -318,6 +319,7 @@ public class DetailSiswaActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseCRUDSiswa> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), "failed edit siswa", Toast.LENGTH_SHORT).show();
+                Log.d("kampret lah", t.toString());
             }
         });
     }
