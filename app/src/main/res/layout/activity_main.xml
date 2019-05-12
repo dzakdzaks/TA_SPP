@@ -23,7 +23,7 @@
                 android:layout_height="80dp"
                 android:layout_alignParentStart="true"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@drawable/icon_hutama" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
