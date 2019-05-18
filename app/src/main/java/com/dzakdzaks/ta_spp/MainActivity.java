@@ -1,6 +1,7 @@
 package com.dzakdzaks.ta_spp;
 
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -61,26 +62,62 @@ public class MainActivity extends AppCompatActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tvPengumuman:
+                tvPengumuman.setBackgroundResource(R.drawable.backtextdarker);
+                tvAbsensi.setBackgroundResource(R.drawable.backtext);
+                tvPembayaran.setBackgroundResource(R.drawable.backtext);
+                tvTunggakan.setBackgroundResource(R.drawable.backtext);
+                tvScanBarcode.setBackgroundResource(R.drawable.backtext);
+                tvLogout.setBackgroundResource(R.drawable.backtext);
                 PengumumanFragment pengumumanFragment = new PengumumanFragment();
                 getFragment(pengumumanFragment);
                 break;
             case R.id.tvAbsensi:
+                tvPengumuman.setBackgroundResource(R.drawable.backtext);
+                tvAbsensi.setBackgroundResource(R.drawable.backtextdarker);
+                tvPembayaran.setBackgroundResource(R.drawable.backtext);
+                tvTunggakan.setBackgroundResource(R.drawable.backtext);
+                tvScanBarcode.setBackgroundResource(R.drawable.backtext);
+                tvLogout.setBackgroundResource(R.drawable.backtext);
                 AbsensiFragment absensiFragment = new AbsensiFragment();
                 getFragment(absensiFragment);
                 break;
             case R.id.tvPembayaran:
+                tvPengumuman.setBackgroundResource(R.drawable.backtext);
+                tvAbsensi.setBackgroundResource(R.drawable.backtext);
+                tvPembayaran.setBackgroundResource(R.drawable.backtextdarker);
+                tvTunggakan.setBackgroundResource(R.drawable.backtext);
+                tvScanBarcode.setBackgroundResource(R.drawable.backtext);
+                tvLogout.setBackgroundResource(R.drawable.backtext);
                 PembayaranFragment pembayaranFragment = new PembayaranFragment();
                 getFragment(pembayaranFragment);
                 break;
             case R.id.tvTunggakan:
+                tvPengumuman.setBackgroundResource(R.drawable.backtext);
+                tvAbsensi.setBackgroundResource(R.drawable.backtext);
+                tvPembayaran.setBackgroundResource(R.drawable.backtext);
+                tvTunggakan.setBackgroundResource(R.drawable.backtextdarker);
+                tvScanBarcode.setBackgroundResource(R.drawable.backtext);
+                tvLogout.setBackgroundResource(R.drawable.backtext);
                 TunggakanFragment tunggakanFragment = new TunggakanFragment();
                 getFragment(tunggakanFragment);
                 break;
             case R.id.tvScanBarcode:
+                tvPengumuman.setBackgroundResource(R.drawable.backtext);
+                tvAbsensi.setBackgroundResource(R.drawable.backtext);
+                tvPembayaran.setBackgroundResource(R.drawable.backtext);
+                tvTunggakan.setBackgroundResource(R.drawable.backtext);
+                tvScanBarcode.setBackgroundResource(R.drawable.backtextdarker);
+                tvLogout.setBackgroundResource(R.drawable.backtext);
                 ScanBarcodeFragment scanBarcodeFragment = new ScanBarcodeFragment();
                 getFragment(scanBarcodeFragment);
                 break;
             case R.id.tvLogout:
+                tvPengumuman.setBackgroundResource(R.drawable.backtext);
+                tvAbsensi.setBackgroundResource(R.drawable.backtext);
+                tvPembayaran.setBackgroundResource(R.drawable.backtext);
+                tvTunggakan.setBackgroundResource(R.drawable.backtext);
+                tvScanBarcode.setBackgroundResource(R.drawable.backtext);
+                tvLogout.setBackgroundResource(R.drawable.backtextdarker);
                 logout();
                 break;
         }
