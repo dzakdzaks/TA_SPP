@@ -56,12 +56,13 @@ public class PengumumanFragment extends Fragment {
     ProgressBar progressBar;
     @BindView(R.id.card)
     CardView card;
+    @BindView(R.id.addButton)
+    RelativeLayout addButton;
     Unbinder unbinder;
 
     UserSession session;
     GlobalVariable globalVariable;
-    @BindView(R.id.addButton)
-    RelativeLayout addButton;
+
 
     EditText inputTitle, inputIsi;
     String title, isi;

@@ -1,5 +1,6 @@
 package com.dzakdzaks.ta_spp.api;
 
+import com.dzakdzaks.ta_spp.response.ResponseCRUDPayment;
 import com.dzakdzaks.ta_spp.response.ResponseCRUDPengumuman;
 import com.dzakdzaks.ta_spp.response.ResponseCRUDSiswa;
 import com.dzakdzaks.ta_spp.response.ResponseLogin;
@@ -100,5 +101,21 @@ public interface ApiInterface {
     Call<ResponseCRUDPengumuman> deletePengumuman(
             @Field("id") String id
     );
+
+    @FormUrlEncoded
+    @POST("pengumuman_add.php")
+    Call<ResponseCRUDPayment> addPayment(
+            @Field("nama") String nama,
+            @Field("value") String value,
+            @Field("cat") String cat
+    );
+
+
+    @FormUrlEncoded
+    @POST("payment_delete.php")
+    Call<ResponseCRUDPayment> deletePayment(
+            @Field("id") String id
+    );
+
 
 }

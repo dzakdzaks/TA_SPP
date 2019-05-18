@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ import com.dzakdzaks.ta_spp.response.User;
 import com.dzakdzaks.ta_spp.session.UserSession;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -69,6 +72,8 @@ public class SiswaResultActivity extends AppCompatActivity {
     TextView tvIzin;
     @BindView(R.id.tvAlpha)
     TextView tvAlpha;
+    @BindView(R.id.btn_tunggakan)
+    Button btnTunggakan;
 
     UserSession session;
 
@@ -79,11 +84,18 @@ public class SiswaResultActivity extends AppCompatActivity {
 
     GlobalVariable globalVariable;
 
-    String id, nis, noUrut, namaSiswa, pass, ttl, kelas, jk, agama, pay;
-    String alamat, noTelp, sakit, izin, alpha, role, pay1, valPay1;
+    String id, idPayment, nis, noUrut, namaSiswa, pass, ttl, kelas, jk, agama, pay, valpay, catpay;
+    String alamat, noTelp, sakit, izin, alpha, role, pay1, valPay1, catPay1;
 
     EditText inputNis, inputNama, inputNoUrut, inputTTL, inputAgama, inputAlamat, inputNoTelpon, inputSakit, inputIzin, inputAlpha;
     Spinner spinnerKelas, spinnerJK;
+
+    ListView listPay, listValPay;
+    TextView totalPayment;
+    ArrayList<String> myListPay;
+    ArrayList<String> myListValPay;
+    ArrayList<Integer> myListResultPay;
+    int sum;
 
     String strInputNis, strInputNama, strInputNoUrut, strInputPay, strInputTTL, strInputAgama, strInputAlamat, strInputNoTelpon, strInputSakit, strInputIzin, strInputAlpha;
 
@@ -94,6 +106,7 @@ public class SiswaResultActivity extends AppCompatActivity {
     String kelas8B = "VIII B";
     String kelas9A = "IX A";
     String kelas9B = "IX B";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +149,7 @@ public class SiswaResultActivity extends AppCompatActivity {
                 AlertDialog.Builder alert = new AlertDialog.Builder(SiswaResultActivity.this);
                 alert.setTitle("Delete");
                 alert.setIcon(R.mipmap.ic_launcher_round);
-                alert.setMessage("Anda yakin ingin menghapus Siswa " + namaSiswa +"?");
+                alert.setMessage("Anda yakin ingin menghapus Siswa " + namaSiswa + "?");
                 alert.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -150,6 +163,13 @@ public class SiswaResultActivity extends AppCompatActivity {
                     }
                 });
                 alert.show();
+            }
+        });
+
+        btnTunggakan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog();
             }
         });
     }
@@ -166,6 +186,7 @@ public class SiswaResultActivity extends AppCompatActivity {
                     if (siswa != null) {
                         nis = siswa.getNisUser();
                         id = siswa.getIdUser();
+                        idPayment = siswa.getIdPayment();
                         namaSiswa = siswa.getNamaUser();
                         noUrut = siswa.getNoUrutUser();
                         ttl = siswa.getTtlUser();
@@ -177,6 +198,12 @@ public class SiswaResultActivity extends AppCompatActivity {
                         sakit = siswa.getSakitUser();
                         izin = siswa.getIzinUser();
                         alpha = siswa.getAlphaUser();
+                        pay1 = siswa.getPayment1();
+                        valPay1 = siswa.getValuePayment1();
+                        catPay1 = siswa.getCatPayment1();
+                        pay = siswa.getNamaPayment();
+                        valpay = siswa.getValuePayment();
+                        catpay = siswa.getCatatanPayment();
                         tvNisUser.setText(nis);
                         tvNameUser.setText(namaSiswa);
                         tvNoUrut.setText(noUrut);
@@ -356,7 +383,7 @@ public class SiswaResultActivity extends AppCompatActivity {
         call.enqueue(new Callback<ResponseCRUDSiswa>() {
             @Override
             public void onResponse(Call<ResponseCRUDSiswa> call, Response<ResponseCRUDSiswa> response) {
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     globalVariable.hideProgressBar(progressBar, SiswaResultActivity.this);
                     Toast.makeText(SiswaResultActivity.this, response.body().getMsg(), Toast.LENGTH_SHORT).show();
                     onBackPressed();
@@ -373,6 +400,54 @@ public class SiswaResultActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.myDialog));
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.list_tunggak, null);
+        alert.setView(dialogView);
+        alert.setCancelable(true);
+        alert.setTitle("Tunggakan Siswa " + namaSiswa);
+        alert.setIcon(R.drawable.ic_person_black_24dp);
+
+        listPay = dialogView.findViewById(R.id.rvTunggak);
+        listValPay = dialogView.findViewById(R.id.rvTunggak1);
+        totalPayment = dialogView.findViewById(R.id.payment_total_value);
+
+        myListPay = new ArrayList<String>(Arrays.asList(pay1.split(",")));
+        myListPay.add(pay);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                getApplicationContext(),
+                android.R.layout.simple_list_item_1,
+                myListPay);
+        listPay.setAdapter(arrayAdapter);
+
+        myListValPay = new ArrayList<String>(Arrays.asList(valPay1.split(",")));
+        myListValPay.add(valpay);
+        ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(
+                getApplicationContext(),
+                android.R.layout.simple_list_item_1,
+                myListValPay);
+        listValPay.setAdapter(arrayAdapter1);
+
+        // convert arraylist string ke arraylist integer
+        myListResultPay = globalVariable.getIntegerArray(myListValPay);
+        //menjumlah dari value payment
+        sum = 0;
+        for (int i = 0; i < myListResultPay.size(); i++) {
+            sum += myListResultPay.get(i);
+            totalPayment.setText("Rp." + sum);
+        }
+
+        alert.setPositiveButton("Tutup", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        alert.show();
     }
 
     private void showNoTicket() {

@@ -1,19 +1,26 @@
 package com.dzakdzaks.ta_spp.response;
 
+import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
 public class ResponseUser{
+
+	@SerializedName("result")
+	private int result;
 
 	@SerializedName("msg")
 	private String msg;
 
-	@SerializedName("error")
-	private String error;
-
 	@SerializedName("user")
 	private List<User> user;
+
+	public void setResult(int result){
+		this.result = result;
+	}
+
+	public int getResult(){
+		return result;
+	}
 
 	public void setMsg(String msg){
 		this.msg = msg;
@@ -21,14 +28,6 @@ public class ResponseUser{
 
 	public String getMsg(){
 		return msg;
-	}
-
-	public void setError(String error){
-		this.error = error;
-	}
-
-	public String getError(){
-		return error;
 	}
 
 	public void setUser(List<User> user){

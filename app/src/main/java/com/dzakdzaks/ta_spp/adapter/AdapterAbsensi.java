@@ -46,6 +46,7 @@ public class AdapterAbsensi extends RecyclerView.Adapter<AdapterAbsensi.ViewAbse
             public void onClick(View view) {
                 Intent i = new Intent(context, DetailSiswaActivity.class);
                 i.putExtra("id", users.get(position).getIdUser());
+                i.putExtra("id_payment", users.get(position).getIdPayment());
                 i.putExtra("nis", users.get(position).getNisUser());
                 i.putExtra("no_urut", users.get(position).getNoUrutUser());
                 i.putExtra("nama", users.get(position).getNamaUser());
@@ -61,11 +62,11 @@ public class AdapterAbsensi extends RecyclerView.Adapter<AdapterAbsensi.ViewAbse
                 i.putExtra("alpha", users.get(position).getAlphaUser());
                 i.putExtra("role", users.get(position).getRoleUser());
                 i.putExtra("pay1", users.get(position).getPayment1());
-//                i.putExtra("pay2", users.get(position).getPayment2());
-//                i.putExtra("pay3", users.get(position).getPayment3());
                 i.putExtra("valpay1", users.get(position).getValuePayment1());
-//                i.putExtra("valpay2", users.get(position).getValuePayment2());
-//                i.putExtra("valpay3", users.get(position).getValuePayment3());
+                i.putExtra("catvalpay1", users.get(position).getCatPayment1());
+                i.putExtra("payment", users.get(position).getNamaPayment());
+                i.putExtra("value_payment", users.get(position).getValuePayment());
+                i.putExtra("catatan_payment", users.get(position).getCatatanPayment());
                 Toast.makeText(context, users.get(position).getNisUser() + " clicked", Toast.LENGTH_SHORT).show();
                 context.startActivity(i);
             }

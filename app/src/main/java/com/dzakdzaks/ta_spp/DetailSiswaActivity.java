@@ -13,9 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ import com.dzakdzaks.ta_spp.response.ResponseCRUDSiswa;
 import com.dzakdzaks.ta_spp.session.UserSession;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -73,15 +76,24 @@ public class DetailSiswaActivity extends AppCompatActivity {
     ImageView edit;
     @BindView(R.id.delete)
     ImageView delete;
+    @BindView(R.id.btn_tunggakan)
+    Button btnTunggakan;
 
     UserSession session;
     GlobalVariable globalVariable;
 
-    String id, nis, noUrut, nama, pass, ttl, kelas, jk, agama, pay;
-    String alamat, noTelp, sakit, izin, alpha, role, pay1, valPay1;
+    String id, idPayment, nis, noUrut, nama, pass, ttl, kelas, jk, agama, pay, valpay, catpay;
+    String alamat, noTelp, sakit, izin, alpha, role, pay1, valPay1, catPay1;
 
     EditText inputNis, inputNama, inputNoUrut, inputTTL, inputAgama, inputAlamat, inputNoTelpon, inputSakit, inputIzin, inputAlpha;
     Spinner spinnerKelas, spinnerJK;
+
+    ListView listPay, listValPay;
+    TextView totalPayment;
+    ArrayList<String> myListPay;
+    ArrayList<String> myListValPay;
+    ArrayList<Integer> myListResultPay;
+    int sum;
 
     String strInputNis, strInputNama, strInputNoUrut, strInputPay, strInputTTL, strInputAgama, strInputAlamat, strInputNoTelpon, strInputSakit, strInputIzin, strInputAlpha;
 
@@ -111,9 +123,12 @@ public class DetailSiswaActivity extends AppCompatActivity {
         if (session.getSpRole().equals("Siswa")) {
             edit.setVisibility(View.GONE);
             delete.setVisibility(View.GONE);
+            btnTunggakan.setVisibility(View.GONE);
         }
 
+
         id = getIntent().getStringExtra("id");
+        idPayment = getIntent().getStringExtra("id_payment");
         nis = getIntent().getStringExtra("nis");
         noUrut = getIntent().getStringExtra("no_urut");
         nama = getIntent().getStringExtra("nama");
@@ -130,7 +145,14 @@ public class DetailSiswaActivity extends AppCompatActivity {
         role = getIntent().getStringExtra("role");
         pay1 = getIntent().getStringExtra("pay1");
         valPay1 = getIntent().getStringExtra("valpay1");
+        catPay1 = getIntent().getStringExtra("catvalpay1");
+        pay = getIntent().getStringExtra("payment");
+        valpay = getIntent().getStringExtra("value_payment");
+        catpay = getIntent().getStringExtra("catatan_payment");
 
+        if (session.getSpNis().equals(nis)) {
+            btnTunggakan.setVisibility(View.VISIBLE);
+        }
 
         tvNisUser.setText(nis);
         tvNameUser.setText(nama);
@@ -172,6 +194,13 @@ public class DetailSiswaActivity extends AppCompatActivity {
                     }
                 });
                 alert.show();
+            }
+        });
+
+        btnTunggakan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog();
             }
         });
     }
@@ -347,5 +376,53 @@ public class DetailSiswaActivity extends AppCompatActivity {
                 Toast.makeText(DetailSiswaActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.myDialog));
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.list_tunggak, null);
+        alert.setView(dialogView);
+        alert.setCancelable(true);
+        alert.setTitle("Tunggakan Siswa " + nama);
+        alert.setIcon(R.drawable.ic_person_black_24dp);
+
+        listPay = dialogView.findViewById(R.id.rvTunggak);
+        listValPay = dialogView.findViewById(R.id.rvTunggak1);
+        totalPayment = dialogView.findViewById(R.id.payment_total_value);
+
+        myListPay = new ArrayList<String>(Arrays.asList(pay1.split(",")));
+        myListPay.add(pay);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                getApplicationContext(),
+                android.R.layout.simple_list_item_1,
+                myListPay);
+        listPay.setAdapter(arrayAdapter);
+
+        myListValPay = new ArrayList<String>(Arrays.asList(valPay1.split(",")));
+        myListValPay.add(valpay);
+        ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(
+                getApplicationContext(),
+                android.R.layout.simple_list_item_1,
+                myListValPay);
+        listValPay.setAdapter(arrayAdapter1);
+
+        // convert arraylist string ke arraylist integer
+        myListResultPay = globalVariable.getIntegerArray(myListValPay);
+        //menjumlah dari value payment
+        sum = 0;
+        for (int i = 0; i < myListResultPay.size(); i++) {
+            sum += myListResultPay.get(i);
+            totalPayment.setText("Rp." + sum);
+        }
+
+        alert.setPositiveButton("Tutup", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        alert.show();
     }
 }
