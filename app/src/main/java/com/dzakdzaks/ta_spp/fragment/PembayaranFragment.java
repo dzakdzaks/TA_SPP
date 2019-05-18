@@ -129,11 +129,11 @@ public class PembayaranFragment extends Fragment {
                     List<PaymentItem> pay = response.body().getPayment();
                     AdapterPayment adapterTiket = new AdapterPayment(pay, getActivity());
                     rvPayment.setAdapter(adapterTiket);
-//                    if (adapterTiket.getItemCount() == 0) {
-//                        emptyView.setVisibility(View.VISIBLE);
-//                    } else {
-//                        emptyView.setVisibility(View.GONE);
-//                    }
+                    if (adapterTiket.getItemCount() == 0) {
+                        board.setText("Tidak ada Pembayaran");
+                    } else {
+                        board.setText("Pembayaran");
+                    }
                     Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
                 }
             }
