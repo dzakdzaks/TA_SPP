@@ -1,21 +1,21 @@
 package com.dzakdzaks.ta_spp;
 
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dzakdzaks.ta_spp.fragment.AbsensiFragment;
 import com.dzakdzaks.ta_spp.fragment.PembayaranFragment;
 import com.dzakdzaks.ta_spp.fragment.PengumumanFragment;
 import com.dzakdzaks.ta_spp.fragment.ScanBarcodeFragment;
 import com.dzakdzaks.ta_spp.fragment.TunggakanFragment;
+import com.dzakdzaks.ta_spp.fragment.WelcomeFragment;
 import com.dzakdzaks.ta_spp.session.UserSession;
 
 import butterknife.BindView;
@@ -38,8 +38,12 @@ public class MainActivity extends AppCompatActivity {
     TextView tvScanBarcode;
     @BindView(R.id.tvLogout)
     TextView tvLogout;
-
+    @BindView(R.id.lonear)
+    LinearLayout lonear;
+    @BindView(R.id.tvNama)
+    TextView tvNama;
     UserSession session;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +51,35 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+       setView();
+
+    }
+
+    private void setView () {
         session = new UserSession(this);
+
+        tvNama.setText("Hi " + session.getSpName() + "!");
 
         if (session.getSpRole().equals("Siswa")) {
             tvScanBarcode.setVisibility(View.GONE);
         }
 
-        PengumumanFragment pengumumanFragment = new PengumumanFragment();
-        getFragment(pengumumanFragment);
+        WelcomeFragment welcomeFragment = new WelcomeFragment();
+        getFragment(welcomeFragment);
 
+        lonear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tvPengumuman.setBackgroundResource(R.drawable.backtext);
+                tvAbsensi.setBackgroundResource(R.drawable.backtext);
+                tvPembayaran.setBackgroundResource(R.drawable.backtext);
+                tvTunggakan.setBackgroundResource(R.drawable.backtext);
+                tvScanBarcode.setBackgroundResource(R.drawable.backtext);
+                tvLogout.setBackgroundResource(R.drawable.backtext);
+                WelcomeFragment welcomeFragment = new WelcomeFragment();
+                getFragment(welcomeFragment);
+            }
+        });
     }
 
     @OnClick({R.id.tvPengumuman, R.id.tvAbsensi, R.id.tvPembayaran, R.id.tvTunggakan, R.id.tvScanBarcode, R.id.tvLogout})
@@ -123,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getFragment(Fragment fragment){
+    private void getFragment(Fragment fragment) {
         // Memulai transaksi
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         // mengganti isi container dengan fragment baru

@@ -87,7 +87,7 @@ public class SiswaResultActivity extends AppCompatActivity {
     String id, idPayment, nis, noUrut, namaSiswa, pass, ttl, kelas, jk, agama, pay, valpay, catpay;
     String alamat, noTelp, sakit, izin, alpha, role, pay1, valPay1, catPay1;
 
-    EditText inputNis, inputNama, inputNoUrut, inputTTL, inputAgama, inputAlamat, inputNoTelpon, inputSakit, inputIzin, inputAlpha;
+    EditText inputNis, inputNama, inputNoUrut, inputTTL, inputAgama, inputAlamat, inputNoTelpon, inputSakit, inputIzin, inputAlpha, inputNamaPayment, inputValPayment;
     Spinner spinnerKelas, spinnerJK;
 
     ListView listPay, listValPay;
@@ -97,7 +97,7 @@ public class SiswaResultActivity extends AppCompatActivity {
     ArrayList<Integer> myListResultPay;
     int sum;
 
-    String strInputNis, strInputNama, strInputNoUrut, strInputPay, strInputTTL, strInputAgama, strInputAlamat, strInputNoTelpon, strInputSakit, strInputIzin, strInputAlpha;
+    String strInputNis, strInputNama, strInputNoUrut, strInputPay, strInputTTL, strInputAgama, strInputAlamat, strInputNoTelpon, strInputSakit, strInputIzin, strInputAlpha, strInputNamaPayment, strInputValPayment;
 
     String itemKelas, itemJks;
     String kelas7A = "VII A";
@@ -250,6 +250,8 @@ public class SiswaResultActivity extends AppCompatActivity {
         inputSakit = dialogView.findViewById(R.id.input_sakit);
         inputIzin = dialogView.findViewById(R.id.input_izin);
         inputAlpha = dialogView.findViewById(R.id.input_alpha);
+        inputNamaPayment = dialogView.findViewById(R.id.input_nama_tunggakan);
+        inputValPayment = dialogView.findViewById(R.id.input_value_tunggakan);
 
         inputNis.setText(nis);
         inputNama.setText(namaSiswa);
@@ -261,6 +263,9 @@ public class SiswaResultActivity extends AppCompatActivity {
         inputSakit.setText(sakit);
         inputIzin.setText(izin);
         inputAlpha.setText(alpha);
+        inputNamaPayment.setText(pay1);
+        inputValPayment.setText(valPay1);
+
 
         List<String> kelass = new ArrayList<String>();
         kelass.add(kelas7A);
@@ -353,9 +358,11 @@ public class SiswaResultActivity extends AppCompatActivity {
         strInputSakit = inputSakit.getText().toString();
         strInputIzin = inputIzin.getText().toString();
         strInputAlpha = inputAlpha.getText().toString();
+        strInputNamaPayment = inputNamaPayment.getText().toString();
+        strInputValPayment = inputValPayment.getText().toString();
 
         ApiInterface apiInterface = ApiClient.getInstance();
-        Call<ResponseCRUDSiswa> call = apiInterface.editSiswa(id, strInputPay, strInputNis, strInputNoUrut, strInputNama, itemKelas, itemJks, strInputTTL, strInputAgama, strInputAlamat, strInputNoTelpon, strInputSakit, strInputIzin, strInputAlpha);
+        Call<ResponseCRUDSiswa> call = apiInterface.editSiswa(id, strInputPay, strInputNis, strInputNoUrut, strInputNama, itemKelas, itemJks, strInputTTL, strInputAgama, strInputAlamat, strInputNoTelpon, strInputSakit, strInputIzin, strInputAlpha, strInputNamaPayment, strInputValPayment);
         call.enqueue(new Callback<ResponseCRUDSiswa>() {
             @Override
             public void onResponse(Call<ResponseCRUDSiswa> call, Response<ResponseCRUDSiswa> response) {

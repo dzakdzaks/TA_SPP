@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +38,9 @@ public class AdapterPayment extends RecyclerView.Adapter<AdapterPayment.ViewAbse
     private List<PaymentItem> users;
     private Context context;
     UserSession session;
+
+    EditText inputTitle, inputVal, inputCat;
+    String strId, strTitle, strVal, strCat;
 
     public AdapterPayment(List<PaymentItem> users, Context context) {
         this.users = users;
@@ -105,7 +109,64 @@ public class AdapterPayment extends RecyclerView.Adapter<AdapterPayment.ViewAbse
         holder.edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "edit", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, users.get(i).getIdPayment(), Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                final View dialogView = inflater.inflate(R.layout.form_add_pay, null);
+                alert.setView(dialogView);
+                alert.setCancelable(true);
+                alert.setTitle("Edit Pembayaran " + users.get(i).getNamaPayment());
+                alert.setIcon(R.drawable.ic_message_black_24dp);
+
+                inputTitle = dialogView.findViewById(R.id.input_title);
+                inputVal= dialogView.findViewById(R.id.input_val);
+                inputCat= dialogView.findViewById(R.id.input_cat);
+
+                inputTitle.setText(users.get(i).getNamaPayment());
+                inputVal.setText(users.get(i).getValuePayment());
+                inputCat.setText(users.get(i).getCatatanPayment());
+
+                strId = users.get(i).getIdPayment();
+
+                alert.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        strTitle = inputTitle.getText().toString();
+                        strVal = inputVal.getText().toString();
+                        strCat = inputCat.getText().toString();
+
+                        ApiInterface apiInterface = ApiClient.getInstance();
+                        Call<ResponseCRUDPayment> call = apiInterface.editPayment(strId, strTitle ,strVal, strCat);
+                        call.enqueue(new Callback<ResponseCRUDPayment>() {
+                            @Override
+                            public void onResponse(Call<ResponseCRUDPayment> call, Response<ResponseCRUDPayment> response) {
+                                String msg = response.body().getMsg();
+                                if (response.isSuccessful()) {
+                                    PembayaranFragment pembayaranFragment = new PembayaranFragment();
+                                    FragmentTransaction ft =((AppCompatActivity) context).getSupportFragmentManager().beginTransaction();
+                                    ft.replace(R.id.fragment, pembayaranFragment);
+                                    ft.commit();
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseCRUDPayment> call, Throwable t) {
+                                Toast.makeText(context, t.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                alert.show();
+
+
             }
         });
     }

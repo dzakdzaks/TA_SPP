@@ -78,7 +78,9 @@ public interface ApiInterface {
             @Field("no_telp") String no_telp,
             @Field("sakit") String sakit,
             @Field("izin") String izin,
-            @Field("alpha") String alpha
+            @Field("alpha") String alpha,
+            @Field("pay") String asd,
+            @Field("valpay") String asda
     );
 
     @FormUrlEncoded
@@ -116,6 +118,16 @@ public interface ApiInterface {
     Call<ResponseCRUDPayment> deletePayment(
             @Field("id") String id
     );
+
+    @FormUrlEncoded
+    @POST("payment_edit.php")
+    Call<ResponseCRUDPayment> editPayment(
+            @Field("id_payment") String id,
+            @Field("nama_payment") String nis,
+            @Field("value_payment") String no_urut,
+            @Field("catatan_payment") String asd
+    );
+
 
 
 }
