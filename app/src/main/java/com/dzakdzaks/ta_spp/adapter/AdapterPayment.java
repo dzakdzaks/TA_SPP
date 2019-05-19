@@ -55,7 +55,7 @@ public class AdapterPayment extends RecyclerView.Adapter<AdapterPayment.ViewAbse
     public void onBindViewHolder(@NonNull ViewAbsensiHolder holder, final int i) {
         if (session.getSpRole().equals("Siswa")) {
             holder.delete.setVisibility(View.GONE);
-//            holder.edit.setVisibility(View.GONE);
+            holder.edit.setVisibility(View.GONE);
         }
         holder.tvTiket.setText(users.get(i).getNamaPayment());
         holder.tvValue.setText("Rp." + users.get(i).getValuePayment());
@@ -101,6 +101,13 @@ public class AdapterPayment extends RecyclerView.Adapter<AdapterPayment.ViewAbse
                 alert.show();
             }
         });
+
+        holder.edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, "edit", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -122,7 +129,7 @@ public class AdapterPayment extends RecyclerView.Adapter<AdapterPayment.ViewAbse
             tvTiket = v.findViewById(R.id.tvTiket);
             tvValue = v.findViewById(R.id.tvValue);
             delete = v.findViewById(R.id.delete);
-//            edit = v.findViewById(R.id.edit);
+            edit = v.findViewById(R.id.edit);
             tvCat = v.findViewById(R.id.tvCat);
 //            tvStatus1 = v.findViewById(R.id.tvStatus1);
 //            tvStatus2 = v.findViewById(R.id.tvStatus2);
