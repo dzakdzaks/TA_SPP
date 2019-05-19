@@ -9,7 +9,7 @@
     <string name="absensi">Absensi</string>
     <string name="pembayaran">Pembayaran</string>
     <string name="tunggakan">Tunggakan</string>
-    <string name="scan_barcode">Scan Barcode</string>
+    <string name="scan_barcode">Scan QR Code</string>
     <string name="logout">Logout</string>
     <!-- strings for dialog -->
     <string name="string_permission_help">Help</string>

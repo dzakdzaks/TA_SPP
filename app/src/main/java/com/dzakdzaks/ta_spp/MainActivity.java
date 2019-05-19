@@ -1,11 +1,13 @@
 package com.dzakdzaks.ta_spp;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,6 +19,9 @@ import com.dzakdzaks.ta_spp.fragment.ScanBarcodeFragment;
 import com.dzakdzaks.ta_spp.fragment.TunggakanFragment;
 import com.dzakdzaks.ta_spp.fragment.WelcomeFragment;
 import com.dzakdzaks.ta_spp.session.UserSession;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     TextView tvNama;
     UserSession session;
 
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
         alert.setPositiveButton("Logout", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                UserSession sesi = new UserSession(MainActivity.this);
-                sesi.logout(); //logout
+
+                session.logout(); //logout
                 finish();
             }
         });
@@ -180,4 +186,36 @@ public class MainActivity extends AppCompatActivity {
         });
         alert.show();
     }
+
+
+
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        timer = new Timer();
+//        Log.i("Main", "Invoking logout timer");
+//        LogOutTimerTask logoutTimeTask = new LogOutTimerTask();
+//        timer.schedule(logoutTimeTask, 10000); //auto logout in 1 minutes
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        if (timer != null) {
+//            timer.cancel();
+//            Log.i("Main", "cancel timer");
+//            timer = null;
+//        }
+//    }
+//
+//    private class LogOutTimerTask extends TimerTask {
+//
+//        @Override
+//        public void run() {
+//
+//            //redirect user to login screen
+//            session.saveSPBoolean(UserSession.SP_SUDAH_LOGIN, false);
+//            finish();
+//        }
+//    }
 }
