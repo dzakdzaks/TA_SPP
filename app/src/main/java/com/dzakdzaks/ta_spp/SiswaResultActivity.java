@@ -2,6 +2,7 @@ package com.dzakdzaks.ta_spp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -427,7 +429,19 @@ public class SiswaResultActivity extends AppCompatActivity {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                 getApplicationContext(),
                 android.R.layout.simple_list_item_1,
-                myListPay);
+                myListPay){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+
+                /*YOUR CHOICE OF COLOR*/
+                textView.setTextColor(Color.BLACK);
+
+                return view;
+            }
+        };
         listPay.setAdapter(arrayAdapter);
 
         myListValPay = new ArrayList<String>(Arrays.asList(valPay1.split(",")));
@@ -435,7 +449,19 @@ public class SiswaResultActivity extends AppCompatActivity {
         ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(
                 getApplicationContext(),
                 android.R.layout.simple_list_item_1,
-                myListValPay);
+                myListValPay){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+
+                /*YOUR CHOICE OF COLOR*/
+                textView.setTextColor(Color.BLACK);
+
+                return view;
+            }
+        };
         listValPay.setAdapter(arrayAdapter1);
 
         // convert arraylist string ke arraylist integer
